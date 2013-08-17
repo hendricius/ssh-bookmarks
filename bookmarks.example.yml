@@ -1,0 +1,7 @@
+# Example configuration:
+#-
+#  - number: 1
+#  - command: "ssh me@me.com"
+-
+  number: 1
+  command: "ssh me@me.com"
