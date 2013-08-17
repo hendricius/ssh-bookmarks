@@ -1,5 +1,4 @@
 require 'yaml'
-require 'pry'
 
 class BookmarkManager
   attr_accessor :bookmark_number
@@ -14,9 +13,10 @@ class BookmarkManager
   end
 
   def self.bookmarks_from_file
-    raise "Please create the bookmarks.yml file. Copy bookmarks.example.yml to bookmarks.yml" unless File.exist?('bookmarks.yml')
+    file = "#{Dir.pwd}/bookmarks.yml"
+    raise "Please create the bookmarks.yml file. Copy bookmarks.example.yml to bookmarks.yml" unless File.exist?(file)
     begin
-      YAML.load_file('bookmarks.yml')
+      YAML.load_file(file)
     rescue
       []
     end
