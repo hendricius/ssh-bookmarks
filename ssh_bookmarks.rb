@@ -13,7 +13,7 @@ class BookmarkManager
   end
 
   def self.bookmarks_from_file
-    file = "#{Dir.pwd}/bookmarks.yml"
+    file = "#{File.dirname(__FILE__)}/bookmarks.yml"
     raise "Please create the bookmarks.yml file. Copy bookmarks.example.yml to bookmarks.yml" unless File.exist?(file)
     begin
       YAML.load_file(file)
