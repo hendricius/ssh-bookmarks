@@ -2,6 +2,8 @@
 #-
 #  - number: 1
 #  - command: "ssh me@me.com"
+#  - description: Client development server
 -
   number: 1
   command: "ssh me@me.com"
+  description: Client development server
