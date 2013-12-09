@@ -1,5 +1,6 @@
 require 'yaml'
 
+# Responsible for hanlding all the individual bookmarks.
 class BookmarkManager
   attr_accessor :bookmark_number, :bookmark_description
 
@@ -8,13 +9,15 @@ class BookmarkManager
     self.bookmark_number = bookmark_number
   end
 
+  # Convert the YAML data structure to bookmarks.
   def self.bookmarks
-    bookmarks_from_file.map do |bookmark|
-      Bookmark.new(number: bookmark["number"], command: bookmark["command"],
+    bookmarks_from_file.each_with_index.map do |bookmark, index|
+      Bookmark.new(number: index + 1, command: bookmark["command"],
                    description: bookmark["description"])
     end.sort_by{|b| b.number }
   end
 
+  # Read the YAML file for bookmarks.
   def self.bookmarks_from_file
     file = "#{File.dirname(__FILE__)}/bookmarks.yml"
     raise "Please create the bookmarks.yml file. Copy bookmarks.example.yml to bookmarks.yml" unless File.exist?(file)
@@ -25,6 +28,7 @@ class BookmarkManager
     end
   end
 
+  # Print the bookmarks
   def self.print_bookmarks
     bookmarks.map do |bookmark|
       print_single_bookmark(bookmark)
@@ -47,6 +51,7 @@ class BookmarkManager
     end
   end
 
+  # Execute the command behind the bookmark. I.e. ssh foo@foo.com
   def connect
     bookmark = self.class.bookmarks.select{|bm| bm.number == bookmark_number }.first
     return unless bookmark
@@ -54,6 +59,7 @@ class BookmarkManager
   end
 end
 
+# The single bookmark that is always loaded from the YAML file.
 class Bookmark
   attr_accessor :number, :command, :description
 
@@ -64,6 +70,7 @@ class Bookmark
   end
 end
 
+# Call the logic and ask the user for a bookmark number
 puts "Pick a bookmark:"
 puts BookmarkManager.print_bookmarks
 bm = BookmarkManager.new(bookmark_number: gets.chomp)
