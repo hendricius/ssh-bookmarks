@@ -55,7 +55,8 @@ class BookmarkManager
   def connect
     bookmark = self.class.bookmarks.select{|bm| bm.number == bookmark_number }.first
     return unless bookmark
-    system(bookmark.command)
+    system('clear')
+    system('ssh', bookmark.command)
   end
 end
 
