@@ -1,7 +1,7 @@
 # Example configuration:
 #-
-#  command: "ssh me@me.com"
+#  command: "me@me.com"
 #  description: Client development server
 -
-  command: "ssh me@me.com"
+  command: "me@me.com"
   description: Client development server
