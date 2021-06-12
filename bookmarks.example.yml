@@ -2,6 +2,11 @@
 #-
 #  command: "me@me.com"
 #  description: Client development server
+#  password: server password
 -
   command: "me@me.com"
   description: Client development server
+-
+  command: "me@me.com"
+  description: Client development server with password
+  password: "p@ssW0rd"
