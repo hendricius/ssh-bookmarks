@@ -7,6 +7,8 @@ class BookmarkManager
   def initialize(bookmark_number: nil)
     bookmark_number = Integer(bookmark_number) if bookmark_number.is_a?(String)
     self.bookmark_number = bookmark_number
+  rescue ArgumentError
+    exit 1
   end
 
   # Convert the YAML data structure to bookmarks.
@@ -38,7 +40,15 @@ class BookmarkManager
   # Creates the string that is used for printing the single bookmark.
   def self.print_single_bookmark(bookmark)
     return "" unless bookmark
-    if bookmark.description
+    if bookmark.pwd
+      # For pretty aligning the description to the above text.
+      digits_in_number  = bookmark.number.to_s.length
+      spaces = ""
+      digits_in_number.times do
+        spaces += " "
+      end
+      "[#{bookmark.number}] - #{bookmark.command}\n   #{spaces}- #{bookmark.description} *"
+    elsif bookmark.description
       # For pretty aligning the description to the above text.
       digits_in_number  = bookmark.number.to_s.length
       spaces = ""
@@ -56,23 +66,63 @@ class BookmarkManager
     bookmark = self.class.bookmarks.select{|bm| bm.number == bookmark_number }.first
     return unless bookmark
     system('clear')
-    system('ssh', bookmark.command)
+    if bookmark.pwd
+      system("sshpass -p #{bookmark.pwd} ssh -o StrictHostKeyChecking=no #{bookmark.command}")
+    else
+      system("ssh", bookmark.command)
+    end
   end
 end
 
 # The single bookmark that is always loaded from the YAML file.
 class Bookmark
-  attr_accessor :number, :command, :description
+  attr_accessor :number, :command, :description, :pwd
 
-  def initialize(number: nil, command: nil, description: nil)
+  def initialize(number: nil, command: nil, description: nil, pwd: nil)
     self.number = number
     self.command = command
     self.description = description
+    self.pwd = pwd
   end
 end
 
-# Call the logic and ask the user for a bookmark number
-puts "Pick a bookmark:"
-puts BookmarkManager.print_bookmarks
-bm = BookmarkManager.new(bookmark_number: gets.chomp)
-bm.connect
+def process_argv(option)
+  case option
+  when "-h"
+    @options[:help] = true
+  when "-e"
+    @options[:edit] = true
+  when "-l"
+    @options[:list] = true
+  when "-c"
+    @options[:connect] = true
+  end
+end
+@options = {}
+ARGV.each { |option| process_argv(option) }
+
+if @options[:edit]
+    system("vi #{File.dirname(__FILE__)}/bookmarks.yml")
+elsif @options[:list]
+    puts BookmarkManager.print_bookmarks
+elsif @options[:help]
+    puts "  -e edit bookmarks yaml file"
+    puts "  -c connect mode"
+    puts "  -l list bookmarks"
+elsif @options[:connect]
+    bm = BookmarkManager.new(bookmark_number: ARGV[1])
+    bm.connect
+elsif ARGV.length > 0
+    bm = BookmarkManager.new(bookmark_number: ARGV[0])
+    bm.connect
+else
+    begin
+      # Call the logic and ask the user for a bookmark number
+      puts "Pick a bookmark:"
+      puts BookmarkManager.print_bookmarks
+      bm = BookmarkManager.new(bookmark_number: gets.chomp)
+      bm.connect
+    rescue Interrupt
+        exit 0
+    end
+end
